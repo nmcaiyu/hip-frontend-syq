@@ -1,0 +1,23 @@
+module.exports = {
+    "id": "73",
+    "patientId": "14",
+    "mrId": "12345694",
+    "fullName": "王*",
+    "sexCode": "1",
+    "nationCode": "汉族",
+    "birthday": "1996-08-09",
+    "idCardNum": "150000199608091212",
+    "insuranceNum": null,
+    "healthNum": null,
+    "address": null,
+    "presentAddress": "内蒙古自治区呼和浩特",
+    "phone": "18601230123",
+    "source": null,
+    "deviceNum": null,
+    "inpatientNum": null,
+    "remarks": null,
+    "createTime": "2020-09-30 13:49:53",
+    "updateTime": "2021-05-25 12:54:08",
+    "validateCode": null,
+    "wxUserPatient": null
+}

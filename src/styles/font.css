@@ -1,0 +1,25 @@
+/*蒙语标题字体*/
+
+@font-face {
+    font-family: 'shmn_regular';
+    src: url('../assets/font/menksoft2012.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'mgq';
+    src: url('../assets/font/MenkGarqag.woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.sxt{
+    font-family: 'shmn_regular', "Consolas", "Monaco", "Bitstream Vera Sans Mono", "Courier New", '微软雅黑', 'Courier', 'monospace';
+}
+
+.mn{
+    font-family: 'shmn_regular', "Consolas", "Monaco", "Bitstream Vera Sans Mono", "Courier New", '微软雅黑', 'Courier', 'monospace';
+    box-sizing: border-box;
+}

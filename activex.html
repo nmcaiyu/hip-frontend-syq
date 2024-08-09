@@ -1,0 +1,23 @@
+<html>
+
+<head>
+    <title>Document</title>
+</head>
+
+<object id="activex-obj" classid="clsid:1B6A233A-C5B0-4FB2-A36C-E4041434A866"></object>
+
+<body>
+    <button onClick="test()">Test</button>
+</body>
+
+<script LANGUAGE="javascript">
+    var activexObj = document.getElementById("activex-obj").object
+    var cardInfo = "150000TLOZG000000000532646|毛晓艳|2|152326197610250063|1976-10-25||奈曼旗人民医院（在职）|150525|0|1|null|1101|310|1628.73|150500D156000005000F2614735147A4|||$"
+    function test() {
+        // var response = activexObj.getcardinfo(1, "zzj02")
+        var response = activexObj.yb2206('zzj02', cardInfo, "")
+        console.log('getcardinfo!!!!',response)
+    }
+</script>
+
+</html>

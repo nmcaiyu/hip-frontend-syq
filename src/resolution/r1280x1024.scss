@@ -1,0 +1,56 @@
+
+// .app-container {
+//     max-width: 1280px;
+//     min-height: 1024px;
+// }
+
+.banner-container {
+    height: 0;
+}
+
+.main-container {
+    padding: 10px 60px 0;
+}
+
+.main-section {
+    padding-top: 20px;
+}
+
+.nav-footer {
+    padding-bottom: 40px;
+}
+
+.department-list {
+    .page-wrapper {
+        // gap: 30px;
+        .department-row {
+            margin-top: 30px;
+        }
+        .department-row:first-child {
+            margin-top: 0;
+        }
+    }
+}
+
+.appointment-confirmation {
+    .main-section {
+        padding-top: 10px;
+    }
+    .confirm-button {
+        margin-top: 15px;
+        padding: 12px 0;
+        background-color: #F5A623;
+        border: none;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: 400;
+        color: white;
+        cursor: pointer;
+    }
+}
+
+.identification-reading {
+    .main-section {
+        padding-top: 10px;
+    }
+}
