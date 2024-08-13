@@ -89,13 +89,12 @@ export default {
                     this.submit()
             }
         },
-        async submit() {
+        submit() {
             let isValid = false
-            await this.$refs.form.validate(valid => isValid = valid)
+            this.$refs.form.validate(valid => isValid = valid)
             if (!isValid) return false
 
             this.startLoading({ text: '创建支付订单' })
-            await sleep(1)
 
             const data = {
                 inpatientNum: this.patient.inpatientNum,
@@ -107,6 +106,8 @@ export default {
                     this.setSession([ 'paymentBusinessType', 'INPATIENT' ])
                     this.setSession([ 'paymentAmount', this.formData.amount ])
                     this.setSession([ 'paymentOrderNo', result ])
+                    this.setSession([ 'settlementType', 'SELF_PAY' ])
+
                     this.$router.push({ name: 'PaymentMethods' }).catch(err => err)
                 } else {
                     this.$router.push({ name: 'Result', params: { icon: 'error', title: '支付订单创建失败' } })

@@ -27,6 +27,13 @@ export default {
 				this.setSession(['patient', null]);
 			} else if (this.$route.name === 'OutpatientPay') {
 				return;
+			} else if (this.$route.path === '/main/sub-nav/AppointmentTodaySubNav' ||
+				this.$route.path === '/main/sub-nav/PrintSubNav' || 
+				this.$route.path === '/main/item-price' ||
+				this.$route.path === '/main/sub-nav/InpatientSubNav'
+			) {
+				this.$router.push({ name: 'Home' }).catch((err) => err);
+				return;
 			}
 			this.$router.go(delta);
 		},

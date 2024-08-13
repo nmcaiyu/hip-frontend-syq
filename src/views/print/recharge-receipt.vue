@@ -83,18 +83,16 @@ export default {
             startLoading: 'session/startLoading',
             stopLoading: 'session/stopLoading',
         }),
-        async fetchData() {
+        fetchData() {
             this.loading = true
-            await sleep(0.5)
             getInpatientRechargeRecords(this.patient.inpatientNum).then(result => {
                 this.loading = false
                 this.total = result.length
                 this.lists = divideArray(result, this.pageSize)
             })
         },
-        async print(outTradeNo) {
+        print(outTradeNo) {
             this.startLoading({ text: '正在打印' })
-            await sleep(1)
             const params = {
                 outTradeNo,
                 printType: 2

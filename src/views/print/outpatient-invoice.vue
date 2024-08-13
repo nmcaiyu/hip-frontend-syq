@@ -68,9 +68,8 @@ export default {
                 this.settledBills = result
             })
         },
-        async print(hisOrderNum) {
+        print(hisOrderNum) {
             this.startLoading({ text: '正在打印' })
-            await sleep(1)
             const params = {
                 patientId: this.patient.patientId,
                 hisOrderNum,

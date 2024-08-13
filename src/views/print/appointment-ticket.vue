@@ -63,9 +63,8 @@ export default {
             startLoading: 'session/startLoading',
             stopLoading: 'session/stopLoading',
         }),
-        async fetchData() {
+        fetchData() {
             this.loading = true
-            await sleep(0.5)
             const params = {
                 patientId: this.patient.patientId,
                 regType: 3
@@ -78,9 +77,8 @@ export default {
                 this.handleError(error)
             })
         },
-        async print(orderNum) {
+        print(orderNum) {
             this.startLoading({ text: '正在打印' })
-            await sleep(1)
             const data = {
                 printType: 2,
                 orderNums: [orderNum]

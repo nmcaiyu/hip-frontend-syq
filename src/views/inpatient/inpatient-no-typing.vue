@@ -68,14 +68,13 @@ export default {
             startLoading: 'session/startLoading',
             stopLoading: 'session/stopLoading'
         }),
-        async onKeyPress(button) {
+        onKeyPress(button) {
             if (button === '{enter}') {
                 let isValid = false
-                await this.$refs.form.validate(valid => isValid = valid)
+                this.$refs.form.validate(valid => isValid = valid)
                 if (!isValid) return false
 
                 this.startLoading({ text: '正在获取信息' })
-                await sleep(1)
 
                 getInpatient(this.formData.inpatientNo).then(result => {
                     this.stopLoading()

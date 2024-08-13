@@ -116,9 +116,8 @@ export default {
 			this.fetchData(page);
 			this.currentPage = page;
 		},
-		async fetchData(page = 1) {
+		fetchData(page = 1) {
 			this.loading = true;
-			await sleep(0.5);
 			const params = {
 				page,
 				limit: this.pageSize,
@@ -156,10 +155,9 @@ export default {
 		currency(val) {
 			return currency(val);
 		},
-		async print() {
+		print() {
 			if (this.orderNum) {
 				this.startLoading({ text: '正在打印' });
-				await sleep(1);
 				const params = {
 					orderNum: this.orderNum,
 					printType: 2,

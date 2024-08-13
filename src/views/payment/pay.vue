@@ -80,7 +80,7 @@ export default {
 			];
 		},
 		settlementTypeConstantValue() {
-			if (this.session.settlementType === 'HEALTH_INSURANCE') {
+			if (this.session.settlementType === 'HEALTH_INSURANCE' || this.session.settlementType === 'ETC_HEALTH_INSURANCE') {
 				return 1;
 			} else {
 				return this.settlementTypeConstant[this.session.settlementType];
@@ -109,7 +109,7 @@ export default {
 			startTimer: 'session/startTimer',
 		}),
 		initPaymentAmount() {
-			if (this.session.settlementType === 'HEALTH_INSURANCE') {
+			if (this.session.settlementType === 'HEALTH_INSURANCE' || this.session.settlementType === 'ETC_HEALTH_INSURANCE') {
 				this.paymentAmount = this.session.selfPayAmount;
 			} else {
 				this.paymentAmount = this.session.paymentAmount;
@@ -129,9 +129,8 @@ export default {
 				}
 			}
 		},
-		async scanPay(val) {
+		scanPay(val) {
 			this.startLoading({ text: '正在支付' });
-			await sleep(1);
 			const params = {
 				merOrderNum: this.session.paymentOrderNo,
 				businessType: this.businessTypeConstantValue,
@@ -147,7 +146,7 @@ export default {
 					this.handleError(error);
 				});
 		},
-		async handlePayResult(result) {
+		handlePayResult(result) {
 			this.stopLoading();
 			if (
 				result &&
@@ -162,13 +161,12 @@ export default {
 				this.paymentStatusPolling(result);
 			}
 		},
-		async afterPaySucceed(result) {
+		afterPaySucceed(result) {
 			if (
 				result.businessType ===
 				this.paymentBusinessTypeConstant['APPOINTMENT']
 			) {
 				this.startLoading({ text: '支付成功，正在打印' });
-				await sleep(1);
 				const data = {
 					printType: 1,
 					orderNums: [result.orderNum],
@@ -186,7 +184,6 @@ export default {
 				this.paymentBusinessTypeConstant['OUTPATIENT']
 			) {
 				this.startLoading({ text: '支付成功，正在打印' });
-				await sleep(1);
 				const params = {
 					orderNum: result.orderNum,
 					printType: 1,
@@ -204,7 +201,6 @@ export default {
 				this.paymentBusinessTypeConstant['INPATIENT']
 			) {
 				this.startLoading({ text: '支付成功，正在打印' });
-				await sleep(1);
 				const params = {
 					outTradeNo: result.orderNum,
 					printType: 1,
@@ -225,40 +221,57 @@ export default {
 				});
 			}
 		},
-		async paymentStatusPolling(result) {
+		paymentStatusPolling(result) {
 			this.startLoading({ text: '等待支付结果返回' });
 			const startTime = new Date();
-			let duration = 0;
 			let status = false;
 			let error = false;
-			while (duration <= this.paymentStatusCheckTimeout) {
-				await getPaymentStatus(this.session.paymentOrderNo)
-					.then((result) => {
-						if (result.status === 1) status = true;
-						if (result.status === 2) error = true;
+
+			const checkStatus = () => {
+				getPaymentStatus(this.session.paymentOrderNo)
+					.then((res) => {
+						if (res.status === 1) {
+							status = true;
+							return handleResult(); // 支付成功，立即处理结果
+						} else if (res.status === 2) {
+							error = true;
+							return handleResult(); // 支付失败，立即处理结果
+						} else {
+							// 如果支付正在进行中，继续轮询
+							const duration = durationFrom(startTime);
+							if (duration <= this.paymentStatusCheckTimeout) {
+								setTimeout(checkStatus, 5000); // 1秒后继续检查
+							} else {
+								error = true; // 超时，将error设为true
+								handleResult(); // 超时处理
+							}
+						}
 					})
-					.catch((err) => {
+					.catch(() => {
 						error = true;
+						handleResult(); // 请求出错，处理错误
 					});
-				if (status || error) break;
-				await sleep(1);
-				duration = durationFrom(startTime);
-			}
-			this.stopLoading();
-			if (status) {
-				const res = {
-					businessType: this.businessTypeConstantValue,
-					orderNum: this.session.paymentOrderNo,
-				};
-				this.afterPaySucceed(res);
-			} else {
-				const title = '支付失败';
-				const subTitle = result && result.remarks ? result.remarks : '';
-				this.$router.push({
-					name: 'Result',
-					params: { icon: 'error', title, subTitle },
-				});
-			}
+			};
+
+			const handleResult = () => {
+				this.stopLoading();
+				if (status) {
+					const res = {
+						businessType: this.businessTypeConstantValue,
+						orderNum: this.session.paymentOrderNo,
+					};
+					this.afterPaySucceed(res); // 支付成功处理
+				} else {
+					const title = '支付失败';
+					const subTitle = result && result.remarks ? result.remarks : '';
+					this.$router.push({
+						name: 'Result',
+						params: { icon: 'error', title, subTitle },
+					});
+				}
+			};
+
+			checkStatus(); // 启动轮询
 		},
 		handleError(error) {
 			if (error.code && error.code === 1) {

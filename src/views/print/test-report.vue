@@ -64,6 +64,7 @@ import { mapState, mapActions } from 'vuex';
 import { getTestRecords, printTestReports } from '@/api';
 import AudioTip from '@/components/AudioTip';
 import { divideArray, sleep } from '@/utils/helper';
+import { MessageBox } from 'element-ui';
 
 export default {
 	components: {
@@ -97,6 +98,14 @@ export default {
 	},
 	methods: {
 		getTransferAdhibition() {
+			this.$message({
+				message: '请稍后报告正在打印，请留意机器下方打印出口',
+				type: 'info',
+				duration: 30000,  // 持续时间为20秒，20秒后自动关闭
+				showClose: true,
+				customClass: 'custom-message'
+			});
+
 			let obj = document.getElementById('TestOcx');
 			let str = `1@${this.patient.patientId}@MOREINFO`;
 			/**获取本机桌面路径
@@ -114,9 +123,8 @@ export default {
 			startLoading: 'session/startLoading',
 			stopLoading: 'session/stopLoading',
 		}),
-		async fetchData() {
+		fetchData() {
 			this.loading = true;
-			await sleep(0.5);
 			getTestRecords(this.patient.patientId)
 				.then((result) => {
 					this.loading = false;
@@ -139,10 +147,9 @@ export default {
 		submit() {
 			this.fetchData();
 		},
-		async print() {
+		print() {
 			if (this.unprinted > 0) {
 				this.startLoading({ text: '正在打印' });
-				await sleep(1);
 				const unprintedRecords = this.records.filter(
 					(r) => r.printed === 0
 				);
@@ -223,4 +230,24 @@ export default {
 .pagination-wrapper {
 	padding-bottom: 20px;
 }
+</style>
+
+<style>
+  /* 自定义样式 */
+  .custom-message {
+    font-size: 60px !important; /* 放大字体 */
+    padding: 20px 30px !important; /* 增加内边距 */
+    max-width: 100% !important; /* 限制最大宽度 */
+    border-radius: 10px !important; /* 圆角边框 */
+    background-color: #f5f5f5 !important; /* 背景颜色 */
+    color: black !important; /* 设置字体颜色为黑色 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important; /* 添加阴影 */
+	white-space: nowrap; /* 防止文字换行 */
+  }
+
+  .custom-message .el-message__content {
+    font-size: 60px !important; /* 放大字体 */
+    text-align: center !important; /* 文字居中 */
+	color: black !important; /* 设置字体颜色为黑色 */
+  }
 </style>

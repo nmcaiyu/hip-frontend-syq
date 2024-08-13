@@ -106,9 +106,8 @@ export default {
 		this.fetchData();
 	},
 	methods: {
-		async fetchData() {
+		fetchData() {
 			this.loading = true;
-			await sleep(0.5);
 			const params = {
 				inpatientNum: this.patient.inpatientNum,
 				startDate: this.changeTimeFormat(this.startDate),

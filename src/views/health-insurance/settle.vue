@@ -177,34 +177,32 @@ export default {
 			}
 			return ret;
 		},
-		async authenticate() {
+		authenticate() {
 			this.startLoading({ text: '正在获取信息' });
 			// 读卡
 			this.invokeActiveX();
 			this.cardInfoRaw = this.handleActiveXResp(this.activexResp);
 			if (!this.cardInfoRaw) return false;
 			const infoList = this.cardInfoRaw.split('$')[0].split('|');
-			this.infoList = [
-				{ label: '姓名', value: infoList[4] },
-				{ label: '证件号码', value: infoList[1] },
-				{
-					label: '出生日期',
-					value: `${infoList[1].substr(6, 4)}/${infoList[1].substr(
-						10,
-						2
-					)}/${infoList[1].substr(12, 2)}`,
-				},
-				{
-					label: '账户余额',
-					value: await this.getBalance(infoList[4], infoList[1]),
-				},
-			];
-			this.stopLoading();
-			this.step = 'PRE_SETTLE';
-			// if (this.infoList[3] !== this.session.patient.idCardNum) {
-			// 	const title = '医保卡与患者身份不符';
-			// 	this.$router.push({ name: 'Result', params: { icon: 'warning', title } }).catch(err=>err);
-			// }
+			this.getBalance(infoList[4], infoList[1]).then((d) => {
+				this.infoList = [
+					{ label: '姓名', value: infoList[4] },
+					{ label: '证件号码', value: infoList[1] },
+					{
+						label: '出生日期',
+						value: `${infoList[1].substr(6, 4)}/${infoList[1].substr(
+							10,
+							2
+						)}/${infoList[1].substr(12, 2)}`,
+					},
+					{
+						label: '账户余额',
+						value: d,
+					},
+				];
+				this.stopLoading();
+				this.step = 'PRE_SETTLE';
+			});
 		},
 		getBalance(patientName, idNum) {
 			return new Promise((r) => {
@@ -216,9 +214,8 @@ export default {
 				});
 			});
 		},
-		async preSettle() {
+		preSettle() {
 			this.startLoading({ text: '正在预结算' });
-			await sleep(1);
 			// let initArgs = null;
 			// 获取预结算参数
 			// console.log(this.session.paymentBusinessType);
@@ -234,17 +231,14 @@ export default {
 			// 	this.handleError(error);
 			// 	return false;
 			// }
-			// 预结算
-			let apiResp = null;
 			const { paymentOrderNo } = this.session;
 			const infoList = this.cardInfoRaw.split('$')[0].split('|');
 			const postData = {
 				orderNum: paymentOrderNo,
 				businessType: this.paymentBusinessTypeConstantValue,
 				medicareCardInfo: infoList[1],
-				// param: initArgs,
 			};
-			await medicalInsurancePreSettle(postData)
+			medicalInsurancePreSettle(postData)
 				.then((respData) => {
 					const item = respData;
 					this.tableList.push({
@@ -254,28 +248,21 @@ export default {
 						accountFee: item.medicarePay,
 						selfPayFee: item.cashPay,
 					});
-					apiResp = respData;
+					const selfPayFeeTotal = this.tableList
+						.map((i) => i.selfPayFee)
+						.reduce((prev, curr) => prev.add(curr), currency(0));
+					this.setSession(['selfPayAmount', selfPayFeeTotal.value]);
+
+					this.step = 'SETTLE';
+					this.stopLoading();
 				})
 				.catch((error) => {
 					this.stopLoading();
 					this.handleError(error);
 				});
-			if (!apiResp) {
-				this.stopLoading();
-				return false;
-			}
-
-			const selfPayFeeTotal = this.tableList
-				.map((i) => i.selfPayFee)
-				.reduce((prev, curr) => prev.add(curr), currency(0));
-			this.setSession(['selfPayAmount', selfPayFeeTotal.value]);
-
-			this.step = 'SETTLE';
-			this.stopLoading();
 		},
-		async settle() {
+		settle() {
 			this.startLoading({ text: '正在结算' });
-			await sleep(1);
 			let apiResp = null;
 			// 结算
 			apiResp = null;
@@ -312,10 +299,9 @@ export default {
 				this.printReceipt(paymentOrderNo);
 			}
 		},
-		async printReceipt(orderNo) {
+		printReceipt(orderNo) {
 			if (this.session.paymentBusinessType === 'APPOINTMENT') {
 				this.startLoading({ text: '结算成功，正在打印' });
-				await sleep(1);
 				const data = {
 					printType: 1,
 					orderNums: [orderNo],
@@ -330,7 +316,6 @@ export default {
 					});
 			} else if (this.session.paymentBusinessType === 'OUTPATIENT') {
 				this.startLoading({ text: '结算成功，正在打印' });
-				await sleep(1);
 				const params = {
 					orderNum: orderNo,
 					printType: 1,
@@ -384,12 +369,12 @@ export default {
 				this.settle();
 			}
 		},
-		async medicalInsuranceCardPolling() {
+		medicalInsuranceCardPolling() {
 			const startTime = new Date();
 			let duration = 0;
 			let succeed = true;
 			while (duration <= this.medicalInsuranceCardTimeout) {
-				await medicalInsuranceCardPolling()
+				medicalInsuranceCardPolling()
 					.then(() => {
 						succeed = true;
 					})
@@ -398,7 +383,6 @@ export default {
 
 				if (succeed) break;
 
-				await sleep(0.5);
 
 				duration = durationFrom(startTime);
 			}

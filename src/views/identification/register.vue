@@ -163,9 +163,9 @@ export default {
             this.focusedRef = null
             this.drawer = false
         },
-        async submit() {
+        submit() {
             let isValid = false
-            await this.$refs.form.validate(valid => isValid = valid)
+            this.$refs.form.validate(valid => isValid = valid)
 
             if (isValid) {
                 this.drawer = false
@@ -174,7 +174,6 @@ export default {
                     text: '正在建档'
                 })
 
-                await sleep(1)
 
                 registerPatient(this.formData).then(result => {
                     this.stopLoading()
@@ -187,7 +186,7 @@ export default {
                 })
             }
         },
-        async onKeyPress(button) {
+        onKeyPress(button) {
             if (button === '{escape}') {
                 this.drawerClose()
             } else {

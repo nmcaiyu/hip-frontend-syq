@@ -119,13 +119,12 @@ export default {
             resetTimer: 'session/resetTimer',
             startTimer: 'session/startTimer'
         }),
-        async fetchData() {
+        fetchData() {
             this.resetTimer(this.start).then(() => {
                 this.startTimer()
             })
 
             this.startLoading({ text: '正在查询' })
-            await sleep(1)
 
             const params = {
                 ...this.formData
@@ -157,10 +156,10 @@ export default {
         launchKeyboard() {
             this.drawer = true
         },
-        async onKeyPress(button) {
+        onKeyPress(button) {
             if (button === '{enter}') {
                 let isValid = false
-                await this.$refs.form.validate(valid => isValid = valid)
+                this.$refs.form.validate(valid => isValid = valid)
 
                 if (isValid) {
                     this.drawer = false

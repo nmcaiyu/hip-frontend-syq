@@ -156,12 +156,12 @@ const state = {
             idType: 2,
             audioName: 'insert-social-security-card'
         },
-        'MEDICAL_RECORD_NO': {
-            label: '就诊码',
-            imgSrc: require('@/assets/identity/barcode.png'),
-            idType: 3,
-            audioName: 'show-medical-record-no'
-        },
+        // 'MEDICAL_RECORD_NO': {
+        //     label: '就诊码',
+        //     imgSrc: require('@/assets/identity/barcode.png'),
+        //     idType: 3,
+        //     audioName: 'show-medical-record-no'
+        // },
         // 'HEALTH_RECORD_CODE': {
         //     label: 'ID号',
         //     imgSrc: require('@/assets/identity/barcode.png'),
@@ -169,7 +169,7 @@ const state = {
         //     audioName: 'show-health-record-code'
         // },
         'OUTPATIENT_NO': {
-            label: 'ID号',  // 2023-12-27与周飞协商之后暂时修改为ID号
+            label: '就诊码',  // 2023-12-27与周飞协商之后暂时修改为ID号
             imgSrc: require('@/assets/identity/barcode.png'),
             idType: 4,   // 2023-12-27与周飞协商之后暂时修改为4
             audioName: 'show-outpatient-no'

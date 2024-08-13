@@ -65,7 +65,7 @@
 				已选择
 				{{ this.selectList.length }} 条单据，总金额 {{ this.selectList[0].fee }} 元
 			</span>
-			<button class="button-pay" @click="pay">支付</button>
+			<button class="button-pay" @click="pay" :disabled="isPaying">支付</button>
 		</section>
 		<nav-footer class="nav-footer" />
 		<audio-tip name="choose-outpatient-bill" />
@@ -106,11 +106,13 @@ export default {
 			methodName: '',
 			tableState: null,
 			selectList: [],
+			isPaying: false,
 		};
 	},
 	computed: {
 		...mapState({
 			patient: (state) => state.session.patient,
+			session: (state) => state.session,
 		}),
 		billAmount() {
 			let amount = currency(0);
@@ -123,9 +125,11 @@ export default {
 		},
 	},
 	created() {
-		this.methodName = this.$route.params.methodName;
-		if (this.methodName && this.methodName == 'SOCIAL_SECURITY_CARD') {
-			// 判断是医保支付
+		const settlementType = this.session.settlementType;
+		// 自费不用选择，其他支付方式需要选择tableState=1其他需要选择，tableState=0自费不需要选择
+		// if (this.methodName && (this.methodName == 'SOCIAL_SECURITY_CARD' || this.methodName == 'ETC_SOCIAL_SECURITY_CARD')) {
+		// 	// 判断是医保支付
+		if (settlementType && (settlementType == 'HEALTH_INSURANCE' || settlementType == 'ETC_HEALTH_INSURANCE')) {
 			this.tableState = 1;
 			this.fetchData();
 		} else {
@@ -153,12 +157,11 @@ export default {
 			this.fetchData(page);
 			this.currentPage = page;
 		},
-		async fetchData(page = 1) {
+		fetchData(page = 1) {
 			this.loading = true;
 			this.resetTimer(this.start).then(() => {
 				this.startTimer();
 			});
-			await sleep(0.5);
 			const params = {
 				page,
 				limit: this.pageSize,
@@ -200,57 +203,63 @@ export default {
 		currency(val) {
 			return currency(val);
 		},
-		async pay() {
+		pay() {
+			if (this.isPaying) return;
+			this.isPaying = true;
 			let data = [];
 			let settlementData = [];
 			if (this.tableState == 1) {
 				if (this.selectList.length == 0) {
-					this.$alert('请选择缴费单', '提示', {
-						confirmButtonText: '确定',
-						showClose: false,
-					});
-					return;
+				this.$alert('请选择缴费单', '提示', {
+					confirmButtonText: '确定',
+					showClose: false,
+				}).finally(() => {
+					this.isPaying = false;  // 支付完成后重置状态
+				});
+				return;
 				} else {
-					data = this.selectList.map((b) => b.billNum);
-					settlementData = this.selectList
-						.map((b) => b.param)
-						.join('^');
+				data = this.selectList.map((b) => b.billNum);
+				settlementData = this.selectList.map((b) => b.param).join('^');
 				}
 			} else if (this.tableState == 0) {
 				if (this.unpaidBills.length == 0) {
-					this.$alert('无可支付缴费单', '提示', {
-						confirmButtonText: '确定',
-						showClose: false,
-					});
-					return;
+				this.$alert('无可支付缴费单', '提示', {
+					confirmButtonText: '确定',
+					showClose: false,
+				}).finally(() => {
+					this.isPaying = false;  // 支付完成后重置状态
+				});
+				return;
 				} else {
-					data = this.unpaidBills.map((b) => b.billNum);
-					settlementData = this.unpaidBills
-						.map((b) => b.param)
-						.join('^');
+				data = this.unpaidBills.map((b) => b.billNum);
+				settlementData = this.unpaidBills.map((b) => b.param).join('^');
 				}
 			}
+
 			this.startLoading({ text: '创建支付订单' });
-			await sleep(1);
+
 			createOutpatientPayOrder(data).then((result) => {
 				this.stopLoading();
 				if (result) {
-					this.setSession(['paymentBusinessType', 'OUTPATIENT']);
-					this.setSession(['paymentAmount', this.billAmount]);
-					this.setSession(['paymentOrderNo', result]);
-					this.setSession(['settlementData', settlementData]);
-					this.$router
-						.push({ name: 'SettlementDispatch' })
-						.catch((err) => err);
+				this.setSession(['paymentBusinessType', 'OUTPATIENT']);
+				this.setSession(['paymentAmount', this.billAmount]);
+				this.setSession(['paymentOrderNo', result]);
+				this.setSession(['settlementData', settlementData]);
+				this.$router
+					.push({ name: 'SettlementDispatch' })
+					.catch((err) => err);
 				} else {
-					this.$router.push({
-						name: 'Result',
-						params: {
-							icon: 'error',
-							title: '支付订单创建失败',
-						},
-					});
+				this.$router.push({
+					name: 'Result',
+					params: {
+					icon: 'error',
+					title: '支付订单创建失败',
+					},
+				});
 				}
+			}).finally(() => {
+				// 支付操作完成后重置状态
+				this.isPaying = false;
 			});
 		},
 	},

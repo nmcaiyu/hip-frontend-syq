@@ -2,6 +2,7 @@
 	<div class="main-container flex-grow flex-column">
 		<timer />
 		<nav-caption caption="电子医保结算" />
+		<nav-caption caption="请刷新电子医保码后进行结算" />
 		<section class="main-section flex-grow flex-column flex-align-stretch">
 			<object :classid="classId" ref="activexObj" class="hidden-input" />
 			<div class="flex-column flex-align-center">
@@ -164,7 +165,7 @@ export default {
 			return ret;
 		},
 		authenticate() {
-			this.startLoading({ text: '正在获取信息' });
+			// this.startLoading({ text: '正在获取信息' });
 			// 读卡
 			this.invokeActiveX();
 			this.personInfo = this.activexResp;
@@ -185,11 +186,9 @@ export default {
 						value: balance,
 					},
 				];
-				this.stopLoading();
+				// this.stopLoading();
 				this.step = 'PRE_SETTLE';
 			})
-			this.stopLoading();
-			this.step = 'PRE_SETTLE';
 		},
 		getBalance(patientName, idNum) {
 			return new Promise((r) => {

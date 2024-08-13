@@ -50,7 +50,7 @@ export default {
 	},
 	methods: {
 		confirm() {
-			if (this.methodName && this.methodName == 'SOCIAL_SECURITY_CARD') {
+			if (this.methodName && (this.methodName == 'SOCIAL_SECURITY_CARD' || this.methodName == 'ETC_SOCIAL_SECURITY_CARD')) {
 				this.$router.push({ name: this.session.redirect,params: { methodName: this.methodName }}).catch((err) => err);
 			} else {
 				this.$router.push({ name: this.session.redirect }).catch((err) => err);

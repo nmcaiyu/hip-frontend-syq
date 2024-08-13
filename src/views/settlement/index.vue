@@ -83,6 +83,14 @@ export default {
         onClick(item) {
             this.setSession([ 'redirect', this.redirect ])
             this.setSession([ 'settlementType', item.type ])
+            if (item.type === 'HEALTH_INSURANCE') {
+                this.$alert('请先插入医保卡', '提示', {
+                    confirmButtonText: '确定',
+                    showClose: false,
+                }).then(() => {
+                    this.$router.push({ name: this.redirect }).catch(err => err)
+                });
+            }
             this.$router.push({ name: this.redirect }).catch(err => err)
         }
     }
