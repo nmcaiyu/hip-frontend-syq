@@ -19,7 +19,7 @@
 							</el-descriptions-item>
 						</el-descriptions>
 					</el-card>
-					<button class="confirm-button" @click="confirmInfo">确认</button>
+					<button class="confirm-button" @click="confirmInfo" :disabled="isLoading">确认</button>
 				</div>
 			</div>
 			<template v-if="step === 'SETTLE'">
@@ -80,6 +80,7 @@ export default {
 		activexResp: null,
 		logId: null,
 		deviceInfo: {},
+		isLoading: false,
 	}),
 	computed: {
 		...mapState({
@@ -215,6 +216,9 @@ export default {
 			});
 		},
 		preSettle() {
+			if (this.isLoading) return;
+    		this.isLoading = true;
+
 			this.startLoading({ text: '正在预结算' });
 			// let initArgs = null;
 			// 获取预结算参数
@@ -259,6 +263,8 @@ export default {
 				.catch((error) => {
 					this.stopLoading();
 					this.handleError(error);
+				}).finally(() => {
+					this.isLoading = false; // 请求结束后解除按钮禁用状态
 				});
 		},
 		settle() {
