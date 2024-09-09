@@ -242,7 +242,6 @@ export default {
     background-color: #f5f5f5 !important; /* 背景颜色 */
     color: black !important; /* 设置字体颜色为黑色 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important; /* 添加阴影 */
-	white-space: nowrap; /* 防止文字换行 */
   }
 
   .custom-message .el-message__content {

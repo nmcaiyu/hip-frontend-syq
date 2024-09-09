@@ -217,7 +217,7 @@ export default {
 		},
 		preSettle() {
 			if (this.isLoading) return;
-    		this.isLoading = true;
+			this.isLoading = true;
 
 			this.startLoading({ text: '正在预结算' });
 			// let initArgs = null;
